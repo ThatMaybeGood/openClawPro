@@ -1,1 +1,101 @@
-
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>筑栖 · 安心建造</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        
+        .navbar { background: rgba(255, 255, 255, 0.95); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .logo { font-size: 2rem; font-weight: bold; color: #667eea; display: flex; align-items: center; gap: 0.5rem; }
+        .nav-links a { text-decoration: none; color: #333; font-weight: 500; transition: color 0.3s; margin-left: 2rem; }
+        .nav-links a:hover { color: #667eea; }
+        
+        .hero { text-align: center; padding: 6rem 2rem 4rem; color: white; animation: fadeInUp 1s ease-out; }
+        .hero h1 { font-size: 3.5rem; margin-bottom: 1rem; }
+        .hero p { font-size: 1.3rem; margin-bottom: 2rem; opacity: 0.9; }
+        .btn-primary { background: #667eea; color: white; padding: 1rem 2.5rem; border: none; border-radius: 50px; font-size: 1.1rem; cursor: pointer; transition: all 0.3s; }
+        .btn-primary:hover { background: #5568d3; transform: scale(1.05); }
+        
+        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; max-width: 1200px; margin: 4rem auto; padding: 0 2rem; }
+        .feature-card { background: rgba(255, 255, 255, 0.95); padding: 2rem; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: transform 0.3s, box-shadow 0.3s; cursor: pointer; }
+        .feature-card:hover { transform: translateY(-10px); box-shadow: 0 15px 40px rgba(0,0,0,0.3); }
+        .feature-icon { font-size: 3rem; margin-bottom: 1rem; }
+        .feature-card h3 { font-size: 1.5rem; color: #667eea; margin-bottom: 0.5rem; }
+        
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo"><span style="font-size: 2.5rem;">🏠</span> 筑栖</div>
+        <div class="nav-links">
+            <a href="#">首页</a>
+            <a href="#">服务项目</a>
+            <a href="#">施工监控</a>
+            <a href="#">联系我们</a>
+        </div>
+    </nav>
+    
+    <section class="hero">
+        <h1>筑栖 · 安心建造</h1>
+        <p>连接您与专业施工团队<br>从设计到入住，全程透明化智慧管理</p>
+        <button class="btn-primary" onclick="showSection('home')">立即开始您的建房之旅</button>
+    </section>
+    
+    <section class="features">
+        <div class="feature-card" onclick="showSection('upload')">
+            <div class="feature-icon">📐</div>
+            <h3>户型上传与设计</h3>
+            <p>上传您的户型图或宅基地信息，获取专业设计方案和精准预算报价</p>
+        </div>
+        
+        <div class="feature-card" onclick="showSection('suppliers')">
+            <div class="feature-icon">👷</div>
+            <h3>优质施工团队</h3>
+            <p>严选认证施工团队，多对一比较选择，确保工程质量与安全</p>
+        </div>
+        
+        <div class="feature-card" onclick="showSection('monitoring')">
+            <div class="feature-icon">📊</div>
+            <h3>全流程施工监控</h3>
+            <p>实时进度跟踪、环境监测、质量验收，手机随时查看工地情况</p>
+        </div>
+        
+        <div class="feature-card" onclick="showSection('design')">
+            <div class="feature-icon">🎨</div>
+            <h3>专业设计服务</h3>
+            <p>资深设计师一对一服务，定制个性化空间方案，还原度高达 90%</p>
+        </div>
+        
+        <div class="feature-card" onclick="showSection('budget')">
+            <div class="feature-icon">💰</div>
+            <h3>精准预算管理</h3>
+            <p>分项明细报价，费用透明可控，拒绝隐形消费和额外增项</p>
+        </div>
+        
+        <div class="feature-card" onclick="showSection('materials')">
+            <div class="feature-icon">🔨</div>
+            <h3>装修材料供应</h3>
+            <p>对接优质建材供应商，价格透明，品质保证，配送直达工地</p>
+        </div>
+    </section>
+    
+    <script>
+        function showSection(section) {
+            const messages = {
+                'home': '欢迎使用筑栖平台！点击按钮进入系统。',
+                'upload': '正在打开：户型上传功能...',
+                'suppliers': '正在打开：施工团队选择...',
+                'monitoring': '正在打开：实时监控面板...',
+                'design': '正在打开：设计服务页面...',
+                'budget': '正在打开：预算管理系统...',
+                'materials': '正在打开：材料供应链...'
+            };
+            alert(messages[section] || '功能开发中...');
+        }
+    </script>
+</body>
+</html>
