@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>筑栖 · 注册</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+        .register-container { background: white; padding: 3rem; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); width: 100%; max-width: 500px; }
+        .logo { text-align: center; margin-bottom: 2rem; }
+        .logo-icon { font-size: 3rem; display: block; margin-bottom: 0.5rem; }
+        .logo-text { font-size: 2rem; color: #667eea; font-weight: bold; }
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: #333; font-weight: 500; }
+        .form-group input { width: 100%; padding: 0.875rem; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1rem; transition: border-color 0.3s; }
+        .form-group input:focus { outline: none; border-color: #667eea; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .btn-primary { width: 100%; padding: 1rem; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; margin-top: 1rem; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4); }
+        .back-link { text-align: center; margin-top: 1.5rem; color: #666; }
+        .back-link a { color: #667eea; text-decoration: none; font-weight: bold; }
+        .alert { padding: 1rem; border-radius: 10px; margin-bottom: 1rem; display: none; }
+        .alert-error { background: #fee; color: #c00; border-left: 4px solid #c00; }
+        .alert-success { background: #efe; color: #080; border-left: 4px solid #080; }
+        .password-strength { height: 4px; background: #e0e0e0; border-radius: 2px; margin-top: 0.5rem; overflow: hidden; }
+        .strength-bar { height: 100%; width: 0; transition: width 0.3s, background-color 0.3s; }
+        .role-select { position: relative; }
+        .role-select select { appearance: none; padding-right: 2rem; }
+        .role-arrow { position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); pointer-events: none; }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="logo">
+            <span class="logo-icon">🏠</span>
+            <span class="logo-text">筑栖</span>
+        </div>
+        
+        <div id="alertBox" class="alert"></div>
+        
+        <form id="registerForm">
+            <div class="form-group role-select">
+                <label for="role">角色类型</label>
+                <select id="role" required>
+                    <option value="">请选择您的身份</option>
+                    <option value="customer">👤 客户（建房业主）</option>
+                    <option value="contractor">👷 施工方（建筑团队）</option>
+                    <option value="supplier">🔨 材料商（供应商）</option>
+                    <option value="designer">🎨 设计师</option>
+                </select>
+                <span class="role-arrow">▼</span>
+            </div>
+            
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" id="username" placeholder="请输入用户名（3-20 个字符）" maxlength="20" required>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="email">邮箱</label>
+                    <input type="email" id="email" placeholder="example@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">手机号</label>
+                    <input type="tel" id="phone" placeholder="11 位手机号" maxlength="11" pattern="[0-9]{11}">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">设置密码</label>
+                <input type="password" id="password" placeholder="至少 6 位，包含字母和数字" minlength="6" required>
+                <div class="password-strength">
+                    <div class="strength-bar" id="strengthBar"></div>
+                </div>
+                <p style="font-size: 0.8rem; color: #999; margin-top: 0.25rem;">💡 密码强度</p>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirmPassword">确认密码</label>
+                <input type="password" id="confirmPassword" placeholder="请再次输入密码" required>
+            </div>
+            
+            <button type="submit" class="btn-primary">立即注册</button>
+        </form>
+        
+        <div class="back-link">
+            已有账号？<a href="login.html">返回登录</a>
+        </div>
+    </div>
+    
+    <script src="../scripts/app.js"></script>
+    <script>
+        // 模拟数据库存储用户
+        const mockUserDB = JSON.parse(localStorage.getItem('zhiqu_users') || '[]');
+        
+        function showAlert(message, type) {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.textContent = message;
+            alertBox.className = `alert alert-${type}`;
+            alertBox.style.display = 'block';
+            
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 3000);
+        }
+        
+        // 密码强度检测
+        function checkPasswordStrength(password) {
+            let strength = 0;
+            
+            if (password.length >= 6) strength++;
+            if (password.length >= 8) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+            
+            const bar = document.getElementById('strengthBar');
+            const colors = ['#f44336', '#ff9800', '#ffc107', '#8bc34a', '#4caf50'];
+            const labels = ['弱', '一般', '中等', '强', '很强'];
+            
+            bar.style.width = `${(strength / 5) * 100}%`;
+            bar.style.backgroundColor = colors[Math.min(strength, 4)];
+            
+            return { strength, label: labels[Math.min(strength, 4)] };
+        }
+        
+        document.getElementById('password').addEventListener('input', function() {
+            const result = checkPasswordStrength(this.value);
+            console.log(`密码强度：${result.label}`);
+        });
+        
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const role = document.getElementById('role').value;
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            // 验证必填项
+            if (!username || !role || !email || !password || !confirmPassword) {
+                showAlert('请填写所有必填字段', 'error');
+                return;
+            }
+            
+            // 验证用户名长度
+            if (username.length < 3 || username.length > 20) {
+                showAlert('用户名必须在 3-20 个字符之间', 'error');
+                return;
+            }
+            
+            // 验证密码匹配
+            if (password !== confirmPassword) {
+                showAlert('两次输入的密码不一致', 'error');
+                return;
+            }
+            
+            // 验证密码复杂度
+            if (password.length < 6) {
+                showAlert('密码长度至少 6 位', 'error');
+                return;
+            }
+            
+            // 检查用户名是否已存在
+            if (mockUserDB.find(u => u.username === username)) {
+                showAlert('该用户名已被使用，请换一个', 'error');
+                return;
+            }
+            
+            // 保存新用户
+            const newUser = {
+                id: Date.now(),
+                username: username,
+                role: role,
+                email: email,
+                phone: phone,
+                password: password,
+                createdAt: new Date().toISOString()
+            };
+            
+            mockUserDB.push(newUser);
+            localStorage.setItem('zhiqu_users', JSON.stringify(mockUserDB));
+            
+            showAlert(`注册成功！欢迎加入筑栖平台！\n\n${newUser.role === 'customer' ? '👤' : newUser.role === 'contractor' ? '👷' : '🔨'} 欢迎您，${username}`, 'success');
+            
+            // 延迟跳转到登录页
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 1500);
+        });
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📝 注册页面加载完成！');
+        });
+    </script>
+</body>
+</html>

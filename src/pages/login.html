@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>筑栖 · 登录</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+        .login-container { background: white; padding: 3rem; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); width: 100%; max-width: 450px; }
+        .logo { text-align: center; margin-bottom: 2rem; }
+        .logo-icon { font-size: 3rem; display: block; margin-bottom: 0.5rem; }
+        .logo-text { font-size: 2rem; color: #667eea; font-weight: bold; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: #333; font-weight: 500; }
+        .form-group input { width: 100%; padding: 0.875rem; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1rem; transition: border-color 0.3s; }
+        .form-group input:focus { outline: none; border-color: #667eea; }
+        .btn-primary { width: 100%; padding: 1rem; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4); }
+        .divider { display: flex; align-items: center; margin: 1.5rem 0; }
+        .divider::before, .divider::after { flex: 1; height: 1px; background: #e0e0e0; content: ''; }
+        .divider span { padding: 0 1rem; color: #999; font-size: 0.9rem; }
+        .social-login { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+        .social-btn { padding: 0.75rem; border: 2px solid #e0e0e0; border-radius: 10px; background: white; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 0.5rem; font-weight: 500; transition: all 0.3s; }
+        .social-btn:hover { border-color: #667eea; background: #f8f9fa; }
+        .forgot-password { text-align: center; margin-top: 1rem; }
+        .forgot-password a { color: #667eea; text-decoration: none; }
+        .signup-link { text-align: center; margin-top: 1.5rem; color: #666; }
+        .signup-link a { color: #667eea; text-decoration: none; font-weight: bold; }
+        .alert { padding: 1rem; border-radius: 10px; margin-bottom: 1rem; display: none; }
+        .alert-error { background: #fee; color: #c00; border-left: 4px solid #c00; }
+        .alert-success { background: #efe; color: #080; border-left: 4px solid #080; }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <span class="logo-icon">🏠</span>
+            <span class="logo-text">筑栖</span>
+        </div>
+        
+        <div id="alertBox" class="alert"></div>
+        
+        <!-- 登录表单 -->
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">账号</label>
+                <input type="text" id="username" placeholder="请输入账号（测试：admin）" required>
+            </div>
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" placeholder="请输入密码（测试：123456）" required>
+            </div>
+            <button type="submit" class="btn-primary">立即登录</button>
+        </form>
+        
+        <div class="divider">
+            <span>或其他登录方式</span>
+        </div>
+        
+        <div class="social-login">
+            <button class="social-btn" onclick="socialLogin('wechat')">
+                <span style="font-size: 1.5rem;">🟢</span>
+                微信登录
+            </button>
+            <button class="social-btn" onclick="socialLogin('alipay')">
+                <span style="font-size: 1.5rem;">🔵</span>
+                支付宝登录
+            </button>
+        </div>
+        
+        <div class="forgot-password">
+            <a href="#">忘记密码？</a>
+        </div>
+        
+        <div class="signup-link">
+            还没有账号？<a href="#" onclick="showRegister()">立即注册</a>
+        </div>
+    </div>
+    
+    <script src="../scripts/app.js"></script>
+    <script>
+        // 模拟用户数据（实际应该从后端获取）
+        const mockUsers = [
+            { username: 'admin', password: '123456', role: 'customer', name: '管理员' },
+            { username: 'contractor', password: '123456', role: 'contractor', name: '施工方' },
+            { username: 'material', password: '123456', role: 'supplier', name: '材料商' }
+        ];
+        
+        let isRegisterMode = false;
+        
+        // 显示/隐藏警报
+        function showAlert(message, type) {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.textContent = message;
+            alertBox.className = `alert alert-${type}`;
+            alertBox.style.display = 'block';
+            
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 3000);
+        }
+        
+        // 表单提交
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                showAlert('请输入账号和密码', 'error');
+                return;
+            }
+            
+            // 验证用户
+            const user = mockUsers.find(u => u.username === username && u.password === password);
+            
+            if (user) {
+                // 保存登录状态
+                localStorage.setItem('zhiqu_user', JSON.stringify(user));
+                localStorage.setItem('zhiqu_token', 'demo_token_' + Date.now());
+                
+                showAlert(`欢迎回来，${user.name}！`, 'success');
+                
+                // 延迟跳转到控制台
+                setTimeout(() => {
+                    window.location.href = 'pages/dashboard.html';
+                }, 1000);
+            } else {
+                showAlert('账号或密码错误，请重试', 'error');
+            }
+        });
+        
+        // 社交登录
+        function socialLogin(platform) {
+            showAlert(`正在跳转到 ${platform === 'wechat' ? '微信' : '支付宝'}授权...\n\nOAuth2 授权功能开发中！`, 'success');
+        }
+        
+        // 切换到注册模式
+        function showRegister() {
+            isRegisterMode = true;
+            showAlert('切换至注册模式...', 'success');
+            
+            // 这里可以添加注册表单的逻辑
+            // 暂时提示开发中的信息
+            setTimeout(() => {
+                if (confirm('注册功能开发中！\n是否使用现有账号登录？')) {
+                    location.reload();
+                }
+            }, 500);
+        }
+        
+        // 检查是否已登录
+        document.addEventListener('DOMContentLoaded', function() {
+            const existingUser = localStorage.getItem('zhiqu_user');
+            if (existingUser) {
+                const user = JSON.parse(existingUser);
+                if (confirm(`${user.name} 您已经登录过了，是否需要重新登录？`)) {
+                    localStorage.removeItem('zhiqu_user');
+                    localStorage.removeItem('zhiqu_token');
+                } else {
+                    window.location.href = 'pages/dashboard.html';
+                }
+            }
+            
+            console.log('🔐 登录页面加载完成！');
+        });
+    </script>
+</body>
+</html>
