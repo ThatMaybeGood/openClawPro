@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>筑栖·我的项目</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        .dashboard { padding: 2rem; max-width: 1400px; margin: 0 auto; }
+        .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .stat-value { font-size: 2rem; font-weight: bold; color: #667eea; }
+        .stat-label { color: #666; margin-top: 0.5rem; }
+        .project-list { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .project-item { display: flex; justify-content: space-between; padding: 1rem; border-bottom: 1px solid #eee; }
+        .project-item:last-child { border-bottom: none; }
+        .project-status { padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem; }
+        .status-progress { background: #e3f2fd; color: #1976d2; }
+        .status-completed { background: #e8f5e9; color: #388e3c; }
+        .status-warning { background: #fff3e0; color: #f57c00; }
+        .btn { padding: 0.5rem 1rem; border: none; border-radius: 5px; cursor: pointer; margin-right: 0.5rem; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .monitoring-panel { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 2rem; border-radius: 12px; margin-top: 2rem; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo"><span style="font-size: 2.5rem;">🏠</span> 筑栖</div>
+        <div class="nav-links">
+            <a href="index.html">首页</a>
+            <a href="#">我的项目</a>
+            <a href="#">施工监控</a>
+            <a href="#">预算管理</a>
+            <a href="#">设置</a>
+            <button onclick="logout()" style="margin-left: 1rem; padding: 0.5rem 1rem; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer;">退出登录</button>
+        </div>
+    </div>
+    
+    <div class="dashboard">
+        <div class="dashboard-header">
+            <h1>👋 欢迎您回来！</h1>
+            <button class="btn btn-primary" onclick="showModal('create-project')">+ 新建项目</button>
+        </div>
+        
+        <!-- 统计概览 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalProjects">0</div>
+                <div class="stat-label">进行中项目</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="completedProjects">0</div>
+                <div class="stat-label">已完成项目</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="activeTeams">0</div>
+                <div class="stat-label">活跃施工团队</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="pendingTasks">0</div>
+                <div class="stat-label">待处理任务</div>
+            </div>
+        </div>
+        
+        <!-- 项目管理列表 -->
+        <div class="project-list">
+            <h2 style="margin-bottom: 1rem;">📦 我的项目</h2>
+            <div id="projectListContainer">
+                <!-- 项目列表将由 JavaScript 动态生成 -->
+            </div>
+        </div>
+        
+        <!-- 实时监控面板 -->
+        <div class="monitoring-panel">
+            <h2 style="margin-bottom: 1rem;">📊 实时施工监控</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <div>
+                    <p style="opacity: 0.9;">当前工地</p>
+                    <p style="font-size: 1.5rem; font-weight: bold;" id="currentSite">--</p>
+                </div>
+                <div>
+                    <p style="opacity: 0.9;">工程进度</p>
+                    <p style="font-size: 1.5rem; font-weight: bold;" id="projectProgress">0%</p>
+                </div>
+                <div>
+                    <p style="opacity: 0.9;">今日天气</p>
+                    <p style="font-size: 1.5rem; font-weight: bold;" id="weatherToday">晴 28°C</p>
+                </div>
+                <div>
+                    <p style="opacity: 0.9;">空气质量</p>
+                    <p style="font-size: 1.5rem; font-weight: bold;" id="airQuality">优 (AQI: 45)</p>
+                </div>
+            </div>
+            <button class="btn btn-success" style="margin-top: 1rem;" onclick="window.location.href='monitoring.html'">进入实时监控 →</button>
+        </div>
+    </div>
+    
+    <script src="../scripts/app.js"></script>
+    <script>
+        // 模拟项目数据（实际应从 API 获取）
+        const mockProjects = [
+            { id: 1, name: '李明住宅建设项目', location: '北京市朝阳区', area: '120㎡', status: 'progress', progress: 65, team: '宏达建设集团', startDate: '2026-02-15', estimatedDate: '2026-06-30' },
+            { id: 2, name: '王芳自建房工程', location: '上海市浦东新区', area: '180㎡', status: 'completed', progress: 100, team: '匠心装修工作室', startDate: '2025-11-01', completedDate: '2026-03-01' },
+            { id: 3, name: '张伟别墅设计建造', location: '杭州市西湖区', area: '350㎡', status: 'warning', progress: 25, team: '绿城建筑工程', startDate: '2026-01-10', estimatedDate: '2026-08-15' }
+        ];
+        
+        let totalProjects = 0;
+        let completedProjects = 0;
+        let activeTeams = 0;
+        let pendingTasks = 0;
+        
+        // 渲染项目列表
+        function renderProjectList() {
+            const container = document.getElementById('projectListContainer');
+            container.innerHTML = '';
+            
+            mockProjects.forEach(project => {
+                const statusClass = project.status === 'progress' ? 'status-progress' : 
+                                   project.status === 'completed' ? 'status-completed' : 'status-warning';
+                const statusText = project.status === 'progress' ? '施工中' : 
+                                  project.status === 'completed' ? '已完工' : '需关注';
+                
+                const projectHTML = `
+                    <div class="project-item">
+                        <div>
+                            <h3>${project.name}</h3>
+                            <p style="color: #666; font-size: 0.9rem;">📍 ${project.location} | 📐 ${project.area} | 👷 ${project.team}</p>
+                            <p style="color: #666; font-size: 0.85rem;">📅 ${project.startDate} ~ ${project.estimatedDate || project.completedDate}</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <span class="project-status ${statusClass}">${statusText} ${project.progress}%</span>
+                            <div style="margin-top: 0.5rem;">
+                                <button class="btn" style="background: #667eea; color: white;" onclick="viewProject(${project.id})">查看详情</button>
+                                <button class="btn" style="background: #ffc107;" onclick="viewMonitoring(${project.id})">监控</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += projectHTML;
+            });
+            
+            // 更新统计数据
+            updateStats();
+        }
+        
+        // 更新统计信息
+        function updateStats() {
+            totalProjects = mockProjects.length;
+            completedProjects = mockProjects.filter(p => p.status === 'completed').length;
+            activeTeams = mockProjects.filter(p => p.status === 'progress').length;
+            pendingTasks = mockProjects.reduce((sum, p) => sum + Math.floor(Math.random() * 5), 0);
+            
+            document.getElementById('totalProjects').textContent = totalProjects;
+            document.getElementById('completedProjects').textContent = completedProjects;
+            document.getElementById('activeTeams').textContent = activeTeams;
+            document.getElementById('pendingTasks').textContent = pendingTasks;
+        }
+        
+        // 模拟实时监控数据
+        function updateMonitoringData() {
+            const currentSites = ['李明住宅建设工地', '王芳自建房现场'];
+            const weather = ['晴 28°C', '多云 26°C', '小雨 24°C'];
+            const airQualities = ['优 (AQI: 45)', '良 (AQI: 78)', '轻度污染 (AQI: 112)'];
+            
+            const randomIndex = Math.floor(Math.random() * currentSites.length);
+            document.getElementById('currentSite').textContent = currentSites[randomIndex];
+            document.getElementById('weatherToday').textContent = weather[randomIndex];
+            document.getElementById('airQuality').textContent = airQualities[randomIndex];
+        }
+        
+        // 视图项目详情
+        function viewProject(id) {
+            alert(`正在打开项目 ID: ${id}\n\n详情页功能开发中...`);
+        }
+        
+        // 查看监控
+        function viewMonitoring(id) {
+            window.location.href = 'pages/monitoring.html';
+        }
+        
+        // 登出
+        function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                alert('已成功退出登录！');
+                // 这里可以添加实际的登出逻辑
+            }
+        }
+        
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            renderProjectList();
+            updateMonitoringData();
+            setInterval(updateMonitoringData, 60000); // 每分钟刷新一次
+            
+            console.log('🏠 筑栖控制台加载完成！');
+        });
+    </script>
+</body>
+</html>

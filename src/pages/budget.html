@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>筑栖·预算管理</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        .budget-container { padding: 2rem; max-width: 1400px; margin: 0 auto; }
+        .budget-header { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 2rem; border-radius: 12px; margin-bottom: 2rem; }
+        .budget-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .budget-card { background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 1.5rem; }
+        .budget-item { border-bottom: 1px solid #eee; padding: 1rem 0; }
+        .budget-item:last-child { border-bottom: none; }
+        .budget-row { display: flex; justify-content: space-between; align-items: center; }
+        .budget-name { font-weight: bold; color: #333; }
+        .budget-amount { font-size: 1.2rem; font-weight: bold; color: #667eea; }
+        .budget-spent { font-size: 0.9rem; color: #666; }
+        .progress-track { height: 6px; background: #e9ecef; border-radius: 3px; overflow: hidden; margin-top: 0.5rem; }
+        .progress-fill { height: 100%; transition: width 0.3s; }
+        .status-below { background: linear-gradient(90deg, #28a745, #667eea); }
+        .status-exceed { background: linear-gradient(90deg, #ffc107, #dc3545); }
+        .alert-box { padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
+        .alert-warning { background: #fff3cd; border-left: 4px solid #ffc107; }
+        .alert-success { background: #d4edda; border-left: 4px solid #28a745; }
+        .btn-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .price-change { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 5px; font-size: 0.8rem; margin-left: 0.5rem; }
+        .price-up { background: #ffebee; color: #c62828; }
+        .price-down { background: #e8f5e9; color: #2e7d32; }
+        .approval-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .approval-table th, .approval-table td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #eee; }
+        .approval-table th { background: #f8f9fa; font-weight: bold; }
+        .badge-pending { background: #ffc107; color: black; padding: 0.2rem 0.5rem; border-radius: 10px; font-size: 0.75rem; }
+        .badge-approved { background: #28a745; color: white; padding: 0.2rem 0.5rem; border-radius: 10px; font-size: 0.75rem; }
+        .badge-rejected { background: #dc3545; color: white; padding: 0.2rem 0.5rem; border-radius: 10px; font-size: 0.75rem; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo"><span style="font-size: 2.5rem;">🏠</span> 筑栖</div>
+        <div class="nav-links">
+            <a href="index.html">首页</a>
+            <a href="pages/dashboard.html">控制台</a>
+            <a href="pages/monitoring.html">施工监控</a>
+            <a href="#">预算管理</a>
+            <a href="#">设置</a>
+        </div>
+    </div>
+    
+    <div class="budget-container">
+        <!-- 预算概览 -->
+        <div class="budget-header">
+            <h1>💰 项目预算管理系统</h1>
+            <p style="margin-top: 0.5rem; opacity: 0.9;">李明住宅建设项目 | 总预算：¥1,200,000 | 已使用：¥580,000 | 剩余：¥620,000</p>
+        </div>
+        
+        <!-- 预警信息 -->
+        <div id="alertContainer">
+            <div class="alert-box alert-warning">
+                <strong>⚠️ 预算预警：</strong> 
+                门窗工程项预算超支 15%，请重点关注！建议及时调整采购计划。
+            </div>
+        </div>
+        
+        <!-- 分项预算统计 -->
+        <div class="budget-grid">
+            <!-- 基础工程 -->
+            <div class="budget-card">
+                <h3 style="margin-bottom: 1rem;">🏗️ 基础工程</h3>
+                <div class="budget-item">
+                    <div class="budget-row">
+                        <span class="budget-name">地基处理</span>
+                        <span class="budget-amount">¥180,000</span>
+                    </div>
+                    <div class="budget-spent">已花费：¥165,000 (92%)</div>
+                    <div class="progress-track"><div class="progress-fill status-below" style="width: 92%"></div></div>
+                </div>
+                <div class="budget-item">
+                    <div class="budget-row">
+                        <span class="budget-name">主体结构</span>
+                        <span class="budget-amount">¥450,000</span>
+                    </div>
+                    <div class="budget-spent">已花费：¥320,000 (71%)</div>
+                    <div class="progress-track"><div class="progress-fill status-below" style="width: 71%"></div></div>
+                </div>
+            </div>
+            
+            <!-- 装修工程 -->
+            <div class="budget-card">
+                <h3 style="margin-bottom: 1rem;">🎨 装修工程</h3>
+                <div class="budget-item">
+                    <div class="budget-row">
+                        <span class="budget-name">水电改造</span>
+                        <span class="budget-amount">¥85,000</span>
+                    </div>
+                    <div class="budget-spent">已花费：¥72,000 (85%)</div>
+                    <div class="progress-track"><div class="progress-fill status-below" style="width: 85%"></div></div>
+                </div>
+                <div class="budget-item">
+                    <div class="budget-row">
+                        <span class="budget-name">墙面地面</span>
+                        <span class="budget-amount">¥120,000</span>
+                    </div>
+                    <div class="budget-spent">已花费：¥98,000 (82%)</div>
+                    <div class="progress-track"><div class="progress-fill status-below" style="width: 82%"></div></div>
+                </div>
+            </div>
+            
+            <!-- 设备材料 -->
+            <div class="budget-card">
+                <h3 style="margin-bottom: 1rem;">🔨 设备材料</h3>
+                <div class="budget-item">
+                    <div class="budget-row">
+                        <span class="budget-name">门窗系统</span>
+                        <span class="budget-amount">¥95,000</span>
+                        <span class="price-change price-up">+15% ⬆️</span>
+                    </div>
+                    <div class="budget-spent">已花费：¥110,000 (116%)</div>
+                    <div class="progress-track"><div class="progress-fill status-exceed" style="width: 116%"></div></div>
+                </div>
+                <div class="budget-item">
+                    <div class="budget-row">
+                        <span class="budget-name">厨卫设备</span>
+                        <span class="budget-amount">¥75,000</span>
+                    </div>
+                    <div class="budget-spent">已花费：¥45,000 (60%)</div>
+                    <div class="progress-track"><div class="progress-fill status-below" style="width: 60%"></div></div>
+                </div>
+            </div>
+            
+            <!-- 其他费用 -->
+            <div class="budget-card">
+                <h3 style="margin-bottom: 1rem;">📋 其他费用</h3>
+                <div class="budget-item">
+                    <div class="budget-row">
+                        <span class="budget-name">设计费</span>
+                        <span class="budget-amount">¥50,000</span>
+                    </div>
+                    <div class="budget-spent">已花费：¥50,000 (100%)</div>
+                    <div class="progress-track"><div class="progress-fill" style="width: 100%"></div></div>
+                </div>
+                <div class="budget-item">
+                    <div class="budget-row">
+                        <span class="budget-name">监理费</span>
+                        <span class="budget-amount">¥35,000</span>
+                    </div>
+                    <div class="budget-spent">已花费：¥25,000 (71%)</div>
+                    <div class="progress-track"><div class="progress-fill status-below" style="width: 71%"></div></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 价格变更审批 -->
+        <div class="budget-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h3>✍️ 价格变更申请</h3>
+                <button class="btn btn-primary" onclick="submitChangeRequest()">+ 提交变更申请</button>
+            </div>
+            <table class="approval-table">
+                <thead>
+                    <tr>
+                        <th>编号</th>
+                        <th>项目名称</th>
+                        <th>原预算</th>
+                        <th>变更后</th>
+                        <th>变更幅度</th>
+                        <th>申请人</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>#CR-20260312-001</td>
+                        <td>实木地板升级</td>
+                        <td>¥45,000</td>
+                        <td>¥65,000</td>
+                        <td style="color: #c62828;">+20,000 (+44%)</td>
+                        <td>客户李总</td>
+                        <td><span class="badge-pending">待审批</span></td>
+                        <td>
+                            <button class="btn" style="background: #28a745; color: white;" onclick="approveChange('CR-20260312-001')">批准</button>
+                            <button class="btn" style="background: #dc3545; color: white;" onclick="rejectChange('CR-20260312-001')">拒绝</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>#CR-20260310-003</td>
+                        <td>瓷砖品牌调整</td>
+                        <td>¥85,000</td>
+                        <td>¥78,000</td>
+                        <td style="color: #2e7d32;">-7,000 (-8%)</td>
+                        <td>项目经理张工</td>
+                        <td><span class="badge-approved">已批准</span></td>
+                        <td>
+                            <button class="btn" style="background: #6c757d; color: white;" disabled>已处理</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- 支付记录 -->
+        <div class="budget-card" style="margin-top: 2rem;">
+            <h3>💳 支付记录</h3>
+            <table class="approval-table">
+                <thead>
+                    <tr>
+                        <th>支付编号</th>
+                        <th>收款方</th>
+                        <th>金额</th>
+                        <th>用途</th>
+                        <th>支付日期</th>
+                        <th>发票号</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>PAY-20260308-001</td>
+                        <td>宏达建设集团</td>
+                        <td>¥200,000</td>
+                        <td>一期工程款</td>
+                        <td>2026-03-08</td>
+                        <td>FAP-202603081234</td>
+                        <td><span style="color: #28a745;">已完成</span></td>
+                    </tr>
+                    <tr>
+                        <td>PAY-20260305-002</td>
+                        <td>京东建材商城</td>
+                        <td>¥45,000</td>
+                        <td>水泥沙石材料</td>
+                        <td>2026-03-05</td>
+                        <td>FAP-202603055678</td>
+                        <td><span style="color: #28a745;">已完成</span></td>
+                    </tr>
+                    <tr>
+                        <td>PAY-20260301-001</td>
+                        <td>设计师王工作室</td>
+                        <td>¥25,000</td>
+                        <td>设计尾款</td>
+                        <td>2026-03-01</td>
+                        <td>FAP-202603019012</td>
+                        <td><span style="color: #28a745;">已完成</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- 预算报告 -->
+        <div class="budget-card" style="margin-top: 2rem; text-align: center;">
+            <h3>📊 下载预算分析报告</h3>
+            <p style="color: #666; margin: 1rem 0;">生成完整的项目成本分析报告，包含支出趋势、异常预警、优化建议</p>
+            <button class="btn btn-primary" onclick="generateReport()">生成分析报告</button>
+        </div>
+    </div>
+    
+    <script src="../scripts/app.js"></script>
+    <script>
+        // 提交变更申请
+        function submitChangeRequest() {
+            const projectName = prompt('输入变更项目名称:', '示例：墙面材料升级');
+            if (projectName) {
+                const reason = prompt('输入变更原因:', '详细说明为什么需要变更...');
+                if (reason) {
+                    alert(`变更申请已提交！\n\n项目名称：${projectName}\n变更原因：${reason}\n\n等待审批中...`);
+                }
+            }
+        }
+        
+        // 批准变更
+        function approveChange(changeId) {
+            if (confirm(`确定要批准变更单 ${changeId} 吗？\n批准后预算将自动更新。`)) {
+                alert(`变更单 ${changeId} 已批准！\n相关人员和供应商将收到通知。\n预算已自动调整。`);
+            }
+        }
+        
+        // 拒绝变更
+        function rejectChange(changeId) {
+            const reason = prompt('输入拒绝原因:', '简要说明为什么不批准此变更...');
+            if (reason) {
+                alert(`变更单 ${changeId} 已拒绝。\n原因：${reason}\n申请人将收到通知。`);
+            }
+        }
+        
+        // 生成报告
+        function generateReport() {
+            alert('正在生成预算分析报告...\n\n报告将包含:\n• 支出趋势图表\n• 异常预警分析\n• 成本控制建议\n• 对比历史数据\n\n生成完成后将自动下载 PDF 文件！');
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('💰 预算管理系统加载完成！');
+        });
+    </script>
+</body>
+</html>
