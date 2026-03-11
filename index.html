@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>筑栖 - 安心建造，智慧安居</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .navbar { background: rgba(255, 255, 255, 0.95); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .logo { font-size: 2rem; font-weight: bold; color: #667eea; display: flex; align-items: center; gap: 0.5rem; }
+        .logo-icon { font-size: 2.5rem; }
+        .nav-links { display: flex; gap: 2rem; }
+        .nav-links a { text-decoration: none; color: #333; font-weight: 500; transition: color 0.3s; }
+        .nav-links a:hover { color: #667eea; }
+        .hero { text-align: center; padding: 8rem 2rem 4rem; color: white; }
+        .hero h1 { font-size: 3.5rem; margin-bottom: 1rem; animation: fadeInUp 1s ease-out; }
+        .hero p { font-size: 1.3rem; margin-bottom: 2rem; animation: fadeInUp 1s ease-out 0.2s backwards; }
+        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; max-width: 1200px; margin: 4rem auto; padding: 0 2rem; }
+        .feature-card { background: rgba(255, 255, 255, 0.95); padding: 2rem; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: transform 0.3s; cursor: pointer; }
+        .feature-card:hover { transform: translateY(-5px); }
+        .feature-icon { font-size: 3rem; margin-bottom: 1rem; }
+        .feature-card h3 { font-size: 1.5rem; color: #667eea; margin-bottom: 0.5rem; }
+        .btn-primary { background: #667eea; color: white; padding: 1rem 2.5rem; border: none; border-radius: 50px; font-size: 1.1rem; margin-top: 2rem; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo"><span class="logo-icon">🏠</span> 筑栖</div>
+        <div class="nav-links">
+            <a href="#home">首页</a>
+            <a href="#services">服务</a>
+            <a href="#monitoring">施工监控</a>
+        </div>
+    </nav>
+    <section class="hero" id="home">
+        <h1>筑栖 · 安心建造</h1>
+        <p>连接您与专业施工团队<br>从设计到入住，全程透明化智慧管理</p>
+        <button class="btn-primary" onclick="showModal('主面板')">立即开始</button>
+    </section>
+    <section class="features" id="services">
+        <div class="feature-card" onclick="showModal('户型上传')"><div class="feature-icon">📐</div><h3>户型上传</h3><p>上传户型图，获取设计方案</p></div>
+        <div class="feature-card" onclick="showModal('施工团队')"><div class="feature-icon">👷</div><h3>施工团队</h3><p>严选认证施工团队</p></div>
+        <div class="feature-card" onclick="showModal('施工监控')"><div class="feature-icon">📊</div><h3>施工监控</h3><p>实时进度+环境监测</p></div>
+        <div class="feature-card" onclick="showModal('预算管理')"><div class="feature-icon">💰</div><h3>预算管理</h3><p>分项报价透明化</p></div>
+    </section>
+    <script>
+        function showModal(title) {
+            alert('正在打开: ' + title + '
+
+欢迎使用筑栖平台！');
+        }
+    </script>
+</body>
+</html>
