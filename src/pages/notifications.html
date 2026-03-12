@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>消息通知 - 筑栖平台</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        .notification-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .notification-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .filter-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 0.5rem;
+            background: #f5f7fa;
+            border-radius: 10px;
+        }
+        
+        .filter-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .filter-btn.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .badge {
+            background: #dc3545;
+            color: white;
+            padding: 0.15rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+        
+        .notification-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .notification-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            padding: 1.5rem;
+            display: flex;
+            gap: 1.5rem;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            border-left: 4px solid transparent;
+        }
+        
+        .notification-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+        
+        .notification-card.unread {
+            border-left-color: #667eea;
+            background: linear-gradient(135deg, #f8fafc 0%, #e8ecff 100%);
+        }
+        
+        .notification-card.progress {
+            border-left-color: #28a745;
+        }
+        
+        .notification-card.warning {
+            border-left-color: #ffc107;
+        }
+        
+        .notification-card.error {
+            border-left-color: #dc3545;
+        }
+        
+        .notif-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        
+        .notif-content {
+            flex: 1;
+        }
+        
+        .notif-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .notif-message {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 0.5rem;
+        }
+        
+        .notif-time {
+            font-size: 0.85rem;
+            color: #999;
+        }
+        
+        .notif-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+        
+        .notif-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-mark-read {
+            background: #e0e0e0;
+            color: #333;
+        }
+        
+        .btn-mark-read:hover {
+            background: #c0c0c0;
+        }
+        
+        .btn-action {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-action:hover {
+            background: #5568d3;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #999;
+        }
+        
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0.75rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .alert-banner {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border-left: 4px solid #ffc107;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .settings-panel {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo"><span style="font-size: 2.5rem;">🏠</span> 筑栖</div>
+        <div class="nav-links">
+            <a href="../index.html">首页</a>
+            <a href="dashboard.html">控制台</a>
+            <a href="project-manage.html">项目管理</a>
+            <a href="notifications.html" style="color: #667eea;">消息中心</a>
+            <a href="budget.html">预算管理</a>
+        </div>
+    </nav>
+    
+    <div class="notification-container">
+        <div class="notification-header">
+            <h1 style="margin-bottom: 0.5rem;">🔔 消息通知中心</h1>
+            <p style="color: #666;">实时掌握项目动态，重要信息不漏掉</p>
+        </div>
+        
+        <!-- 筛选标签 -->
+        <div class="filter-tabs">
+            <button class="filter-btn active" onclick="filterNotifications('all')">全部通知 <span id="badge-all" class="badge"></span></button>
+            <button class="filter-btn" onclick="filterNotifications('unread')">未读消息 <span id="badge-unread" class="badge"></span></button>
+            <button class="filter-btn" onclick="filterNotifications('progress')">进度更新 <span id="badge-progress" class="badge"></span></button>
+            <button class="filter-btn" onclick="filterNotifications('warning')">预警提醒 <span id="badge-warning" class="badge"></span></button>
+            <button class="filter-btn" onclick="filterNotifications('system')">系统消息</button>
+        </div>
+        
+        <!-- 重要提醒横幅 -->
+        <div id="urgentAlert" class="alert-banner" style="display: none;">
+            <span style="font-size: 2rem;">⚠️</span>
+            <div style="flex: 1;" id="urgentContent"></div>
+            <button onclick="dismissAlert()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">×</button>
+        </div>
+        
+        <!-- 通知列表 -->
+        <div id="notificationList" class="notification-list">
+            <!-- 由 JavaScript 动态生成 -->
+        </div>
+        
+        <!-- 通知设置 -->
+        <div class="settings-panel">
+            <h3 style="margin-bottom: 1.5rem;">🔔 通知偏好设置</h3>
+            <div id="notificationSettings">
+                <!-- 设置项 -->
+            </div>
+        </div>
+    </div>
+    
+    <script src="../scripts/localdb.js"></script>
+    <script>
+        // 初始化通知数据
+        function initNotifications() {
+            const defaultNotifications = [
+                {
+                    id: 1,
+                    type: 'progress',
+                    title: '施工进度更新',
+                    message: '您的项目「新居建造」已完成水电改造阶段，当前进度 35%。施工团队已上传现场照片，请前往监控页面查看。',
+                    time: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
+                    unread: true,
+                    project: '新居建造',
+                    action: 'view_monitoring'
+                },
+                {
+                    id: 2,
+                    type: 'warning',
+                    title: '预算超支预警',
+                    message: '检测到「材料采购」分项支出已超过预算的 90%，建议及时调整采购计划或申请预算变更审批。',
+                    time: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+                    unread: true,
+                    project: '新居建造',
+                    urgency: 'high',
+                    action: 'view_budget'
+                },
+                {
+                    id: 3,
+                    type: 'progress',
+                    title: '设计方案已通过审核',
+                    message: '您选择的「现代简约风」设计方案已通過设计师最终确认，可以开始进行施工图深化设计。预计 3 个工作日内出图。',
+                    time: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
+                    unread: false,
+                    project: '新居建造',
+                    action: 'view_design'
+                },
+                {
+                    id: 4,
+                    type: 'system',
+                    title: '欢迎使用筑栖平台',
+                    message: '感谢您选择筑栖平台！我们已经为您匹配了 3 家优质施工团队，您可以在「施工团队管理」页面查看详情并发起联系。',
+                    time: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+                    unread: false,
+                    action: 'view_suppliers'
+                },
+                {
+                    id: 5,
+                    type: 'progress',
+                    title: '验收报告已上传',
+                    message: '监理工程师已完成本周质量验收，报告评级为「优秀」。详细验收内容包含隐蔽工程检查、材料检测等 5 个方面。',
+                    time: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
+                    unread: false,
+                    project: '新居建造',
+                    action: 'view_report'
+                },
+                {
+                    id: 6,
+                    type: 'warning',
+                    title: '即将到期付款提醒',
+                    message: '距离第一期工程进度款支付截止还有 3 天，请及时完成付款以免影响后续施工进度。应付金额：¥45,000',
+                    time: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(),
+                    unread: false,
+                    project: '新居建造',
+                    urgency: 'medium',
+                    action: 'make_payment'
+                }
+            ];
+            
+            if (!LocalDB.get('notifications')) {
+                LocalDB.set('notifications', defaultNotifications);
+            }
+            
+            updateNotificationBadges();
+        }
+        
+        // 渲染通知列表
+        function renderNotifications(filter = 'all') {
+            const notifications = LocalDB.get('notifications') || [];
+            const container = document.getElementById('notificationList');
+            
+            let filtered = notifications;
+            
+            if (filter === 'unread') {
+                filtered = notifications.filter(n => n.unread);
+            } else if (filter !== 'all') {
+                filtered = notifications.filter(n => n.type === filter);
+            }
+            
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <p>暂无此类通知</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const iconMap = {
+                progress: '✅',
+                warning: '⚠️',
+                system: '📢',
+                error: '❌'
+            };
+            
+            container.innerHTML = filtered.map(notif => `
+                <div class="notification-card ${notif.unread ? 'unread' : ''} ${notif.type}" onclick="handleNotificationClick(${notif.id})">
+                    <div class="notif-icon">${iconMap[notif.type] || '📱'}</div>
+                    <div class="notif-content">
+                        <div class="notif-title">${notif.title}</div>
+                        <div class="notif-message">${notif.message}</div>
+                        ${notif.project ? `<div style="font-size: 0.85rem; color: #999; margin-bottom: 0.25rem;">项目：${notif.project}</div>` : ''}
+                        <div class="notif-time">${formatTime(notif.time)}</div>
+                    </div>
+                    <div class="notif-actions">
+                        ${notif.unread ? `<button class="notif-btn btn-mark-read" onclick="event.stopPropagation(); markAsRead(${notif.id})">✓ 标记已读</button>` : ''}
+                        <button class="notif-btn btn-action" onclick="event.stopPropagation(); handleAction(${notif.id})">操作</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 过滤通知
+        function filterNotifications(type) {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.closest('.filter-btn').classList.add('active');
+            
+            renderNotifications(type);
+        }
+        
+        // 点击通知卡片
+        function handleNotificationClick(id) {
+            const notifications = LocalDB.get('notifications') || [];
+            const notif = notifications.find(n => n.id === id);
+            
+            if (notif && notif.unread) {
+                markAsRead(id);
+            }
+            
+            // 执行关联动作
+            if (notif.action) {
+                executeAction(notif.action, notif);
+            }
+        }
+        
+        // 标记为已读
+        function markAsRead(id) {
+            const notifications = LocalDB.get('notifications') || [];
+            const index = notifications.findIndex(n => n.id === id);
+            
+            if (index !== -1) {
+                notifications[index].unread = false;
+                LocalDB.set('notifications', notifications);
+                
+                renderNotifications(document.querySelector('.filter-btn.active').innerText.split(' ')[0]);
+                updateNotificationBadges();
+            }
+        }
+        
+        // 批量标记已读
+        function markAllAsRead() {
+            let notifications = LocalDB.get('notifications') || [];
+            let hasChanges = false;
+            
+            notifications.forEach(n => {
+                if (n.unread) {
+                    n.unread = false;
+                    hasChanges = true;
+                }
+            });
+            
+            if (hasChanges) {
+                LocalDB.set('notifications', notifications);
+                renderNotifications('all');
+                updateNotificationBadges();
+            }
+        }
+        
+        // 处理通知操作
+        function handleAction(id) {
+            const notifications = LocalDB.get('notifications') || [];
+            const notif = notifications.find(n => n.id === id);
+            
+            if (notif?.action) {
+                executeAction(notif.action, notif);
+            }
+        }
+        
+        // 执行动作
+        function executeAction(action, notification) {
+            switch(action) {
+                case 'view_monitoring':
+                    window.location.href = 'monitoring.html';
+                    break;
+                case 'view_budget':
+                    window.location.href = 'budget.html';
+                    break;
+                case 'view_design':
+                    window.location.href = 'project-manage.html';
+                    break;
+                case 'view_suppliers':
+                    window.location.href = 'supplier.html';
+                    break;
+                case 'view_report':
+                    alert(`正在打开验收报告...\n\n项目名称：${notification.project}\n评级：优秀\n验收日期：${new Date(notification.time).toLocaleDateString()}`);
+                    break;
+                case 'make_payment':
+                    window.location.href = 'budget.html';
+                    break;
+                default:
+                    console.log('Unknown action:', action);
+            }
+        }
+        
+        // 更新时间徽章
+        function updateNotificationBadges() {
+            const notifications = LocalDB.get('notifications') || [];
+            
+            const unreadCount = notifications.filter(n => n.unread).length;
+            const progressCount = notifications.filter(n => n.type === 'progress' && n.unread).length;
+            const warningCount = notifications.filter(n => n.type === 'warning' && n.unread).length;
+            
+            const badgeAll = document.getElementById('badge-all');
+            const badgeUnread = document.getElementById('badge-unread');
+            const badgeProgress = document.getElementById('badge-progress');
+            const badgeWarning = document.getElementById('badge-warning');
+            
+            badgeAll.textContent = unreadCount > 0 ? unreadCount : '';
+            badgeUnread.textContent = unreadCount > 0 ? unreadCount : '';
+            badgeProgress.textContent = progressCount > 0 ? progressCount : '';
+            badgeWarning.textContent = warningCount > 0 ? warningCount : '';
+            
+            // 显示紧急提醒
+            checkUrgentNotifications();
+        }
+        
+        // 检查紧急通知
+        function checkUrgentNotifications() {
+            const notifications = LocalDB.get('notifications') || [];
+            const urgent = notifications.find(n => n.unread && n.urgency === 'high');
+            
+            if (urgent) {
+                const banner = document.getElementById('urgentAlert');
+                const content = document.getElementById('urgentContent');
+                
+                banner.style.display = 'flex';
+                content.innerHTML = `
+                    <div>
+                        <strong>紧急提醒：</strong>${urgent.title}
+                    </div>
+                `;
+            }
+        }
+        
+        // 关闭紧急提醒
+        function dismissAlert() {
+            document.getElementById('urgentAlert').style.display = 'none';
+        }
+        
+        // 格式化时间
+        function formatTime(isoString) {
+            const date = new Date(isoString);
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 1000 * 60) {
+                return '刚刚';
+            } else if (diff < 1000 * 60 * 60) {
+                return `${Math.floor(diff / (1000 * 60))}分钟前`;
+            } else if (diff < 1000 * 60 * 60 * 24) {
+                return `${Math.floor(diff / (1000 * 60 * 60))}小时前`;
+            } else {
+                return date.toLocaleDateString('zh-CN');
+            }
+        }
+        
+        // 初始化通知设置
+        function initNotificationSettings() {
+            const settings = LocalDB.get('notificationSettings') || {
+                progress: true,
+                warning: true,
+                system: true,
+                email: false,
+                sms: false,
+                push: true
+            };
+            
+            const container = document.getElementById('notificationSettings');
+            
+            container.innerHTML = `
+                <div style="display: grid; gap: 1rem;">
+                    ${Object.entries(settings).map(([key, value]) => `
+                        <label style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;">
+                            <span style="display: flex; align-items: center; gap: 0.75rem;">
+                                <span>${getSettingLabel(key)}</span>
+                            </span>
+                            <input type="checkbox" 
+                                ${value ? 'checked' : ''}
+                                onchange="toggleSetting('${key}', this.checked)"
+                                style="width: 50px; height: 26px; accent-color: #667eea;">
+                        </label>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        // 获取设置标签
+        function getSettingLabel(key) {
+            const labels = {
+                progress: '施工进度更新通知',
+                warning: '预警提醒通知',
+                system: '系统公告消息',
+                email: '邮件通知',
+                sms: '短信通知',
+                push: 'App 推送通知'
+            };
+            return labels[key] || key;
+        }
+        
+        // 切换设置
+        function toggleSetting(key, value) {
+            let settings = LocalDB.get('notificationSettings') || {};
+            settings[key] = value;
+            LocalDB.set('notificationSettings', settings);
+        }
+        
+        // 模拟实时通知
+        function simulateRealtimeNotifications() {
+            setInterval(() => {
+                // 有一定概率收到新通知
+                if (Math.random() < 0.3) {
+                    const mockNotifications = [
+                        {
+                            title: '环境监测异常',
+                            message: '施工现场 PM2.5 浓度超过标准值，已自动启动空气净化设备。',
+                            type: 'warning',
+                            project: '新居建造'
+                        },
+                        {
+                            title: '材料到货提醒',
+                            message: '您订购的瓷砖已于今日上午送达工地，请安排人员验收入库。',
+                            type: 'progress',
+                            project: '新居建造'
+                        },
+                        {
+                            title: '安全巡检完成',
+                            message: '本周例行安全检查已结束，共发现 2 处隐患点，已全部整改完毕。',
+                            type: 'progress',
+                            project: '新居建造'
+                        }
+                    ];
+                    
+                    const randomNotif = mockNotifications[Math.floor(Math.random() * mockNotifications.length)];
+                    
+                    const notifications = LocalDB.get('notifications') || [];
+                    notifications.unshift({
+                        id: Date.now(),
+                        ...randomNotif,
+                        unread: true,
+                        time: new Date().toISOString()
+                    });
+                    
+                    // 只保留最近 50 条通知
+                    LocalDB.set('notifications', notifications.slice(0, 50));
+                    
+                    updateNotificationBadges();
+                    renderNotifications(document.querySelector('.filter-btn.active')?.innerText.split(' ')[0] || 'all');
+                    
+                    // 播放提示音（可选）
+                    // new Audio('notification-sound.mp3').play().catch(() => {});
+                }
+            }, 30000); // 每 30 秒检查一次
+        }
+        
+        // 页面加载初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initNotifications();
+            renderNotifications('all');
+            initNotificationSettings();
+            simulateRealtimeNotifications();
+        });
+    </script>
+</body>
+</html>

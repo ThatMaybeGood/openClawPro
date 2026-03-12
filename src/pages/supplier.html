@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>施工团队管理 - 筑栖平台</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+        
+        .supplier-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 1rem;
+        }
+        
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            background: transparent;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .supplier-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+        
+        .supplier-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+        
+        .supplier-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .supplier-header {
+            display: flex;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        
+        .supplier-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+        }
+        
+        .supplier-info h3 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .verification-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            background: #28a745;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+        
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .stars {
+            color: #ffc107;
+        }
+        
+        .supplier-body {
+            padding: 1.5rem;
+        }
+        
+        .stats-row {
+            display: flex;
+            justify-content: space-around;
+            margin: 1rem 0;
+            padding: 1rem 0;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        .portfolio {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+        
+        .portfolio-item {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.75rem;
+            text-align: center;
+            padding: 0.5rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            padding: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+        
+        .btn-view {
+            flex: 1;
+            padding: 0.75rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .btn-view:hover {
+            background: #5568d3;
+        }
+        
+        .btn-contact {
+            flex: 1;
+            padding: 0.75rem;
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-contact:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .application-form {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .file-upload {
+            border: 2px dashed #667eea;
+            padding: 2rem;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .file-upload:hover {
+            background: #f5f7fa;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo"><span style="font-size: 2.5rem;">🏠</span> 筑栖</div>
+        <div class="nav-links">
+            <a href="../index.html">首页</a>
+            <a href="dashboard.html">控制台</a>
+            <a href="monitoring.html">施工监控</a>
+            <a href="supplier.html" style="color: #667eea;">施工团队</a>
+            <a href="budget.html">预算管理</a>
+        </div>
+    </nav>
+    
+    <div class="page-header">
+        <h1>👷 施工团队管理平台</h1>
+        <p>严选认证团队 · 透明化服务 · 品质保障</p>
+    </div>
+    
+    <div class="supplier-section">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('browse')">浏览团队</button>
+            <button class="tab-btn" onclick="switchTab('apply')">团队入驻申请</button>
+            <button class="tab-btn" onclick="switchTab('pending')">待审核申请</button>
+        </div>
+        
+        <!-- 浏览团队 -->
+        <div id="browse-tab">
+            <h2 class="section-title">精选施工团队</h2>
+            <div class="supplier-grid" id="supplierList">
+                <!-- 由 JavaScript 动态生成 -->
+            </div>
+        </div>
+        
+        <!-- 团队入驻申请 -->
+        <div id="apply-tab" style="display: none;">
+            <h2 class="section-title">施工团队入驻申请</h2>
+            <div class="application-form">
+                <form id="supplierForm" onsubmit="handleApply(event)">
+                    <div class="form-group">
+                        <label>团队名称 *</label>
+                        <input type="text" name="teamName" placeholder="请输入团队名称" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>负责人姓名 *</label>
+                        <input type="text" name="contactName" placeholder="请输入负责人姓名" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>联系电话 *</label>
+                        <input type="tel" name="phone" placeholder="请输入联系电话" required pattern="[0-9]{11}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>团队类型 *</label>
+                        <select name="type" required>
+                            <option value="">请选择团队类型</option>
+                            <option value="construction">建筑施工队</option>
+                            <option value="decoration">室内装修队</option>
+                            <option value="design">设计团队</option>
+                            <option value="material">材料供应商</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>资质证书 *</label>
+                        <div class="file-upload" onclick="document.getElementById('certFile').click()">
+                            <p>点击上传资质证书（营业执照、建筑业企业资质等）</p>
+                            <input type="file" id="certFile" style="display: none;" multiple onchange="showFiles(this)">
+                            <div id="certPreview"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>案例作品 *</label>
+                        <div class="file-upload" onclick="document.getElementById('portfolioFile').click()">
+                            <p>点击上传过往案例作品（至少 3 张）</p>
+                            <input type="file" id="portfolioFile" style="display: none;" multiple onchange="showFiles(this, 'portPreview')">
+                            <div id="portPreview"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>团队简介 *</label>
+                        <textarea name="description" rows="5" placeholder="请介绍团队规模、经验特色、擅长领域等..." required></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary" style="width: 100%;">提交申请</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- 待审核申请 -->
+        <div id="pending-tab" style="display: none;">
+            <h2 class="section-title">待审核入驻申请</h2>
+            <div id="pendingList"></div>
+        </div>
+    </div>
+    
+    <script src="../scripts/localdb.js"></script>
+    <script>
+        // 初始化施工团队数据
+        function initSuppliers() {
+            const defaultSuppliers = [
+                {
+                    id: 1,
+                    teamName: '匠心建筑团队',
+                    contactName: '王建国',
+                    phone: '138****5678',
+                    type: 'construction',
+                    verified: true,
+                    rating: 4.9,
+                    reviewCount: 156,
+                    projectsCompleted: 234,
+                    yearsOfExperience: 12,
+                    teamSize: 28,
+                    tags: ['自建房屋', '框架结构', '别墅建造'],
+                    portfolio: ['project1.jpg', 'project2.jpg', 'project3.jpg']
+                },
+                {
+                    id: 2,
+                    teamName: '美居装饰设计',
+                    contactName: '李美丽',
+                    phone: '139****9012',
+                    type: 'decoration',
+                    verified: true,
+                    rating: 4.8,
+                    reviewCount: 98,
+                    projectsCompleted: 187,
+                    yearsOfExperience: 8,
+                    teamSize: 15,
+                    tags: ['现代简约', '北欧风格', '新中式'],
+                    portfolio: ['deco1.jpg', 'deco2.jpg', 'deco3.jpg']
+                },
+                {
+                    id: 3,
+                    teamName: '宏达建材供应',
+                    contactName: '张伟',
+                    phone: '136****3456',
+                    type: 'material',
+                    verified: true,
+                    rating: 4.7,
+                    reviewCount: 312,
+                    projectsCompleted: 500,
+                    yearsOfExperience: 15,
+                    teamSize: 45,
+                    tags: ['水泥砂浆', '瓷砖地板', '卫浴洁具'],
+                    portfolio: ['mat1.jpg', 'mat2.jpg', 'mat3.jpg']
+                },
+                {
+                    id: 4,
+                    teamName: '空间美学设计工作室',
+                    contactName: '陈思雨',
+                    phone: '137****7890',
+                    type: 'design',
+                    verified: true,
+                    rating: 5.0,
+                    reviewCount: 67,
+                    projectsCompleted: 89,
+                    yearsOfExperience: 6,
+                    teamSize: 8,
+                    tags: ['全屋定制', '效果图渲染', '施工图绘制'],
+                    portfolio: ['design1.jpg', 'design2.jpg', 'design3.jpg']
+                }
+            ];
+            
+            if (!LocalDB.get('suppliers')) {
+                LocalDB.set('suppliers', defaultSuppliers);
+            }
+        }
+        
+        // 渲染施工团队列表
+        function renderSupplierList() {
+            const suppliers = LocalDB.get('suppliers') || [];
+            const container = document.getElementById('supplierList');
+            
+            if (suppliers.length === 0) {
+                container.innerHTML = '<p style="text-align: center; padding: 2rem; color: #666;">暂无施工团队，请前往「团队入驻申请」添加。</p>';
+                return;
+            }
+            
+            const typeLabels = {
+                construction: '建筑施工',
+                decoration: '室内装修',
+                design: '设计服务',
+                material: '材料供应'
+            };
+            
+            container.innerHTML = suppliers.map(supplier => `
+                <div class="supplier-card">
+                    <div class="supplier-header">
+                        <div class="supplier-avatar">${supplier.teamName.charAt(0)}</div>
+                        <div class="supplier-info">
+                            <h3>${supplier.teamName}</h3>
+                            ${supplier.verified ? '<span class="verification-badge">✅ 已认证</span>' : '<span class="verification-badge" style="background: #ffc107;">⏳ 审核中</span>'}
+                            <p style="margin-top: 0.5rem; color: #666;">${typeLabels[supplier.type] || '综合服务'}</p>
+                            <div class="rating">
+                                <span class="stars">⭐${'★'.repeat(Math.floor(supplier.rating))}${'☆'.repeat(5 - Math.floor(supplier.rating))}</span>
+                                <span style="color: #666;">${supplier.rating} (${supplier.reviewCount}条评价)</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="supplier-body">
+                        <div class="stats-row">
+                            <div class="stat-item">
+                                <div class="stat-value">${supplier.projectsCompleted}</div>
+                                <div class="stat-label">完成项目</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">${supplier.yearsOfExperience}</div>
+                                <div class="stat-label">从业年限</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">${supplier.teamSize}</div>
+                                <div class="stat-label">团队人数</div>
+                            </div>
+                        </div>
+                        
+                        <div class="portfolio">
+                            ${supplier.portfolio.slice(0, 3).map((img, idx) => `
+                                <div class="portfolio-item">案例作品 ${idx + 1}</div>
+                            `).join('')}
+                        </div>
+                        
+                        <div style="margin-top: 1rem;">
+                            ${supplier.tags.map(tag => `<span style="display: inline-block; background: #e8ecff; color: #667eea; padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.85rem; margin: 0.25rem;">${tag}</span>`).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn-view" onclick="viewSupplier(${supplier.id})">查看详情</button>
+                        <button class="btn-contact" onclick="contactSupplier(${supplier.id})">联系团队</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 切换标签页
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.getElementById('browse-tab').style.display = tabName === 'browse' ? 'block' : 'none';
+            document.getElementById('apply-tab').style.display = tabName === 'apply' ? 'block' : 'none';
+            document.getElementById('pending-tab').style.display = tabName === 'pending' ? 'block' : 'none';
+            
+            if (tabName === 'pending') {
+                renderPendingApplications();
+            }
+        }
+        
+        // 查看团队详情
+        function viewSupplier(id) {
+            const suppliers = LocalDB.get('suppliers') || [];
+            const supplier = suppliers.find(s => s.id === id);
+            
+            if (supplier) {
+                alert(`团队详情\n\n${supplier.teamName}\n负责人：${supplier.contactName}\n电话：${supplier.phone}\n评分：${supplier.rating}\n已完成项目：${supplier.projectsCompleted}个`);
+            }
+        }
+        
+        // 联系团队
+        function contactSupplier(id) {
+            const suppliers = LocalDB.get('suppliers') || [];
+            const supplier = suppliers.find(s => s.id === id);
+            
+            if (supplier) {
+                alert(`已为您拨打团队电话：${supplier.phone}\n\n您也可以在此留下联系方式，团队将尽快与您联系。`);
+            }
+        }
+        
+        // 处理入驻申请
+        function handleApply(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            const application = {
+                id: Date.now(),
+                teamName: formData.get('teamName'),
+                contactName: formData.get('contactName'),
+                phone: formData.get('phone'),
+                type: formData.get('type'),
+                description: formData.get('description'),
+                status: 'pending',
+                applyDate: new Date().toISOString()
+            };
+            
+            let applications = LocalDB.get('supplierApplications') || [];
+            applications.push(application);
+            LocalDB.set('supplierApplications', applications);
+            
+            alert('申请提交成功！\n\n我们的审核团队将在 1-3 个工作日内完成资质审核，并通过短信通知您结果。');
+            e.target.reset();
+            switchTab('browse');
+        }
+        
+        // 展示文件选择
+        function showFiles(input, previewId = 'certPreview') {
+            const preview = document.getElementById(previewId);
+            if (input.files.length > 0) {
+                preview.innerHTML = `<p style="color: #28a745;">✓ 已选择 ${input.files.length} 个文件</p>`;
+            }
+        }
+        
+        // 渲染待审核申请
+        function renderPendingApplications() {
+            const applications = LocalDB.get('supplierApplications') || [];
+            const container = document.getElementById('pendingList');
+            
+            if (applications.length === 0) {
+                container.innerHTML = '<p style="text-align: center; padding: 2rem; color: #666;">暂无待审核申请。</p>';
+                return;
+            }
+            
+            container.innerHTML = applications.map(app => `
+                <div style="background: white; padding: 1.5rem; margin-bottom: 1rem; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h3 style="color: #333; margin-bottom: 0.5rem;">${app.teamName}</h3>
+                            <p style="color: #666;">负责人：${app.contactName} | 电话：${app.phone}</p>
+                            <p style="color: #666;">申请时间：${new Date(app.applyDate).toLocaleDateString()}</p>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button onclick="approveApplication(${app.id})" style="padding: 0.5rem 1rem; background: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer;">通过</button>
+                            <button onclick="rejectApplication(${app.id})" style="padding: 0.5rem 1rem; background: #dc3545; color: white; border: none; border-radius: 8px; cursor: pointer;">拒绝</button>
+                        </div>
+                    </div>
+                    <p style="margin-top: 1rem; color: #333;"><strong>团队简介：</strong><br>${app.description}</p>
+                </div>
+            `).join('');
+        }
+        
+        // 通过申请
+        function approveApplication(id) {
+            let applications = LocalDB.get('supplierApplications') || [];
+            let suppliers = LocalDB.get('suppliers') || [];
+            
+            const appIndex = applications.findIndex(a => a.id === id);
+            if (appIndex !== -1) {
+                const app = applications[appIndex];
+                
+                const newSupplier = {
+                    id: Date.now(),
+                    teamName: app.teamName,
+                    contactName: app.contactName,
+                    phone: app.phone,
+                    type: app.type,
+                    verified: true,
+                    rating: 5.0,
+                    reviewCount: 0,
+                    projectsCompleted: 0,
+                    yearsOfExperience: 0,
+                    teamSize: 0,
+                    tags: [],
+                    portfolio: []
+                };
+                
+                suppliers.push(newSupplier);
+                LocalDB.set('suppliers', suppliers);
+                
+                applications.splice(appIndex, 1);
+                LocalDB.set('supplierApplications', applications);
+                
+                alert('申请已通过！该团队已添加到平台。');
+                renderPendingApplications();
+            }
+        }
+        
+        // 拒绝申请
+        function rejectApplication(id) {
+            let applications = LocalDB.get('supplierApplications') || [];
+            
+            const appIndex = applications.findIndex(a => a.id === id);
+            if (appIndex !== -1) {
+                applications.splice(appIndex, 1);
+                LocalDB.set('supplierApplications', applications);
+                
+                alert('申请已拒绝。');
+                renderPendingApplications();
+            }
+        }
+        
+        // 页面加载初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initSuppliers();
+            renderSupplierList();
+        });
+    </script>
+</body>
+</html>

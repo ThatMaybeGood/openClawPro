@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目管理 - 筑栖平台</title>
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        .page-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .wizard-stepper {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+            position: relative;
+        }
+        
+        .wizard-stepper::before {
+            content: '';
+            position: absolute;
+            top: 2.5rem;
+            left: 50px;
+            right: 50px;
+            height: 3px;
+            background: #e0e0e0;
+            z-index: 0;
+        }
+        
+        .step {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            width: 100px;
+        }
+        
+        .step-number {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.5rem;
+            font-weight: bold;
+            font-size: 1.25rem;
+            transition: all 0.3s;
+        }
+        
+        .step.active .step-number {
+            background: #667eea;
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .step.completed .step-number {
+            background: #28a745;
+            color: white;
+        }
+        
+        .step-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .step.active .step-label {
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .wizard-content {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .wizard-step {
+            display: none;
+        }
+        
+        .wizard-step.active {
+            display: block;
+        }
+        
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 4rem 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upload-area:hover {
+            background: linear-gradient(135deg, #e8ecff 0%, #d1d9f5 100%);
+            transform: scale(1.01);
+        }
+        
+        .upload-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .preview-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #f5f7fa;
+        }
+        
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .preview-remove {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(220, 53, 69, 0.9);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .wizard-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid #e0e0e0;
+        }
+        
+        .btn-prev {
+            padding: 0.75rem 2rem;
+            background: #e0e0e0;
+            color: #333;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-prev:hover {
+            background: #c0c0c0;
+        }
+        
+        .btn-next {
+            padding: 0.75rem 2rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-next:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+        
+        .ai-suggestions {
+            background: linear-gradient(135deg, #e8ecff 0%, #d1d9f5 100%);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-top: 1.5rem;
+        }
+        
+        .ai-suggestions h4 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .suggestion-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .suggestion-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .suggestion-preview {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.75rem;
+            text-align: center;
+        }
+        
+        .style-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .style-tag {
+            background: #e8ecff;
+            color: #667eea;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+        }
+        
+        .ai-status {
+            padding: 1rem;
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            border-radius: 5px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo"><span style="font-size: 2.5rem;">🏠</span> 筑栖</div>
+        <div class="nav-links">
+            <a href="../index.html">首页</a>
+            <a href="dashboard.html">控制台</a>
+            <a href="project-manage.html" style="color: #667eea;">项目管理</a>
+            <a href="monitoring.html">施工监控</a>
+            <a href="budget.html">预算管理</a>
+        </div>
+    </nav>
+    
+    <div class="page-container">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <h1 style="color: #333; margin-bottom: 0.5rem;">📋 项目创建向导</h1>
+            <p style="color: #666;">一步步完成您的建房需求，AI 智能辅助设计方案</p>
+        </div>
+        
+        <!-- 步骤导航 -->
+        <div class="wizard-stepper">
+            <div class="step active" id="step-indicator-1">
+                <div class="step-number">1</div>
+                <div class="step-label">基本信息</div>
+            </div>
+            <div class="step" id="step-indicator-2">
+                <div class="step-number">2</div>
+                <div class="step-label">户型图纸</div>
+            </div>
+            <div class="step" id="step-indicator-3">
+                <div class="step-number">3</div>
+                <div class="step-label">设计方案</div>
+            </div>
+            <div class="step" id="step-indicator-4">
+                <div class="step-number">4</div>
+                <div class="step-label">确认提交</div>
+            </div>
+        </div>
+        
+        <!-- 向导表单 -->
+        <div class="wizard-content">
+            <form id="projectForm">
+                <!-- 步骤 1：基本信息 -->
+                <div class="wizard-step active" data-step="1">
+                    <h2 style="margin-bottom: 2rem;">项目基本信息</h2>
+                    
+                    <div class="form-group">
+                        <label>项目名称 *</label>
+                        <input type="text" name="projectName" placeholder="例如：新居建造 / 老房改造" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>房屋类型 *</label>
+                            <select name="houseType" required>
+                                <option value="">请选择房屋类型</option>
+                                <option value="new-build">新建自住房</option>
+                                <option value="renovation">老房改造</option>
+                                <option value="villa">独栋别墅</option>
+                                <option value="apartment">公寓装修</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>建筑面积（㎡） *</label>
+                            <input type="number" name="area" placeholder="请输入建筑面积" required min="10">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>所在地区 *</label>
+                            <input type="text" name="location" placeholder="省/市/区县" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>预计开工时间 *</label>
+                            <input type="date" name="startDate" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>期望风格 *</label>
+                        <select name="style" multiple required style="height: 120px;">
+                            <option value="modern">现代简约</option>
+                            <option value="nordic">北欧风格</option>
+                            <option value="chinese">新中式</option>
+                            <option value="american">美式乡村</option>
+                            <option value="european">欧式古典</option>
+                            <option value="industrial">工业风</option>
+                        </select>
+                        <small style="color: #666;">按住 Ctrl/Cmd 键可多选</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>项目描述</label>
+                        <textarea name="description" rows="4" placeholder="请描述您的具体需求和特殊要求..."></textarea>
+                    </div>
+                </div>
+                
+                <!-- 步骤 2：户型图纸 -->
+                <div class="wizard-step" data-step="2">
+                    <h2 style="margin-bottom: 2rem;">户型图上传</h2>
+                    
+                    <div class="upload-area" onclick="document.getElementById('floorPlanUpload').click()">
+                        <div class="upload-icon">📐</div>
+                        <h3>点击上传户型图或宅基地照片</h3>
+                        <p style="color: #666; margin: 1rem 0;">支持 JPG、PNG、PDF 格式，最大 10MB</p>
+                        <button type="button" class="btn-primary">选择文件</button>
+                        <input type="file" id="floorPlanUpload" style="display: none;" multiple accept="image/*,.pdf" onchange="handleFileUpload(this)">
+                    </div>
+                    
+                    <div id="previewContainer" class="preview-grid"></div>
+                    
+                    <div class="form-group" style="margin-top: 2rem;">
+                        <label>补充说明</label>
+                        <textarea name="planNotes" rows="3" placeholder="请在图中标注房间功能、尺寸等信息..."></textarea>
+                    </div>
+                </div>
+                
+                <!-- 步骤 3：设计方案 -->
+                <div class="wizard-step" data-step="3">
+                    <h2 style="margin-bottom: 2rem;">AI 设计方案生成</h2>
+                    
+                    <div class="ai-status">
+                        <span style="font-size: 2rem;">🤖</span>
+                        <div>
+                            <strong>AI 智能分析中...</strong>
+                            <p style="margin: 0.25rem 0 0 0; color: #666;">根据您上传的户型图和偏好，正在为您生成多套设计方案</p>
+                        </div>
+                    </div>
+                    
+                    <div class="ai-suggestions">
+                        <h4>💡 为您推荐的设计方案</h4>
+                        
+                        <div class="suggestion-card" onclick="selectDesign(1)">
+                            <div class="suggestion-preview">
+                                <img src="" alt="方案 1 预览" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <div>
+                                <h4>方案 A - 现代简约风</h4>
+                                <p style="color: #666; font-size: 0.9rem;">强调空间通透感，开放式布局，最大化利用自然光</p>
+                                <div class="style-tags">
+                                    <span class="style-tag">现代简约</span>
+                                    <span class="style-tag">开放式厨房</span>
+                                    <span class="style-tag">L 型动线</span>
+                                </div>
+                                <p style="margin-top: 0.5rem; color: #28a745; font-weight: bold;">预计造价：¥${Math.floor(Math.random() * 200000 + 150000)}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="suggestion-card" onclick="selectDesign(2)">
+                            <div class="suggestion-preview">
+                                <img src="" alt="方案 2 预览" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <div>
+                                <h4>方案 B - 温馨北欧风</h4>
+                                <p style="color: #666; font-size: 0.9rem;">原木元素搭配浅色调，营造温暖舒适的居家氛围</p>
+                                <div class="style-tags">
+                                    <span class="style-tag">北欧风格</span>
+                                    <span class="style-tag">原木家具</span>
+                                    <span class="style-tag">绿色植物</span>
+                                </div>
+                                <p style="margin-top: 0.5rem; color: #28a745; font-weight: bold;">预计造价：¥${Math.floor(Math.random() * 150000 + 120000)}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="suggestion-card" onclick="selectDesign(3)">
+                            <div class="suggestion-preview">
+                                <img src="" alt="方案 3 预览" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <div>
+                                <h4>方案 C - 新中式典雅</h4>
+                                <p style="color: #666; font-size: 0.9rem;">传统与现代融合，讲究对称美学与文化内涵</p>
+                                <div class="style-tags">
+                                    <span class="style-tag">新中式</span>
+                                    <span class="style-tag">对称布局</span>
+                                    <span class="style-tag">禅意空间</span>
+                                </div>
+                                <p style="margin-top: 0.5rem; color: #28a745; font-weight: bold;">预计造价：¥${Math.floor(Math.random() * 250000 + 180000)}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" style="margin-top: 2rem;">
+                        <label>选择设计方案 *</label>
+                        <select name="selectedDesign" id="designSelect" required>
+                            <option value="">请选择设计方案</option>
+                            <option value="design-a">方案 A - 现代简约风</option>
+                            <option value="design-b">方案 B - 温馨北欧风</option>
+                            <option value="design-c">方案 C - 新中式典雅</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- 步骤 4：确认提交 -->
+                <div class="wizard-step" data-step="4">
+                    <h2 style="margin-bottom: 2rem;">信息确认</h2>
+                    
+                    <div id="summaryContent" style="background: #f8f9fa; padding: 2rem; border-radius: 10px;">
+                        <p><strong>提示信息：</strong>请先填写前几步的内容，然后查看完整的总结。</p>
+                    </div>
+                    
+                    <div class="form-group" style="margin-top: 2rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" name="agreeTerms" required style="width: auto;">
+                            我已阅读并同意《筑栖平台服务协议》和《隐私政策》
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- 操作按钮 -->
+                <div class="wizard-actions">
+                    <button type="button" class="btn-prev" id="prevBtn" onclick="previousStep()" style="display: none;">上一步</button>
+                    <button type="button" class="btn-next" id="nextBtn" onclick="nextStep()">下一步</button>
+                    <button type="submit" class="btn-primary" id="submitBtn" style="display: none;">确认创建项目</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script src="../scripts/localdb.js"></script>
+    <script>
+        let currentStep = 1;
+        const totalSteps = 4;
+        let formData = {};
+        
+        // 切换到指定步骤
+        function goToStep(step) {
+            currentStep = step;
+            
+            // 更新步骤指示器
+            document.querySelectorAll('.step').forEach((el, idx) => {
+                const stepNum = idx + 1;
+                el.classList.remove('active', 'completed');
+                if (stepNum < currentStep) {
+                    el.classList.add('completed');
+                } else if (stepNum === currentStep) {
+                    el.classList.add('active');
+                }
+            });
+            
+            // 显示当前步骤内容
+            document.querySelectorAll('.wizard-step').forEach(el => {
+                el.classList.remove('active');
+                if (parseInt(el.dataset.step) === currentStep) {
+                    el.classList.add('active');
+                }
+            });
+            
+            // 更新按钮状态
+            updateButtons();
+            
+            // 如果是最后一步，更新摘要
+            if (currentStep === 4) {
+                updateSummary();
+            }
+        }
+        
+        // 更新按钮状态
+        function updateButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            prevBtn.style.display = currentStep === 1 ? 'none' : 'inline-block';
+            
+            if (currentStep === totalSteps) {
+                nextBtn.style.display = 'none';
+                submitBtn.style.display = 'inline-block';
+            } else {
+                nextBtn.style.display = 'inline-block';
+                submitBtn.style.display = 'none';
+            }
+        }
+        
+        // 下一步
+        function nextStep(e) {
+            e?.preventDefault();
+            
+            // 验证当前步骤
+            const currentForm = document.querySelector(`.wizard-step[data-step="${currentStep}"]`);
+            const requiredFields = currentForm.querySelectorAll('[required]');
+            let isValid = true;
+            
+            requiredFields.forEach(field => {
+                if (!field.value || field.checked === false && field.type === 'checkbox') {
+                    isValid = false;
+                    field.style.borderColor = '#dc3545';
+                    setTimeout(() => field.style.borderColor = '', 2000);
+                } else {
+                    field.style.borderColor = '';
+                }
+            });
+            
+            if (!isValid) {
+                alert('请完整填写所有必填字段！');
+                return;
+            }
+            
+            // 保存表单数据
+            saveFormData();
+            
+            if (currentStep < totalSteps) {
+                goToStep(currentStep + 1);
+            }
+        }
+        
+        // 上一步
+        function previousStep() {
+            if (currentStep > 1) {
+                goToStep(currentStep - 1);
+            }
+        }
+        
+        // 保存表单数据
+        function saveFormData() {
+            const form = document.getElementById('projectForm');
+            const formDataObj = new FormData(form);
+            const currentData = {};
+            
+            for (let [key, value] of formDataObj.entries()) {
+                currentData[key] = value;
+            }
+            
+            formData = { ...formData, ...currentData };
+        }
+        
+        // 处理文件上传
+        function handleFileUpload(input) {
+            const previewContainer = document.getElementById('previewContainer');
+            const uploadedFiles = Array.from(input.files).slice(0, 5);
+            
+            if (uploadedFiles.length === 0) return;
+            
+            uploadedFiles.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const div = document.createElement('div');
+                    div.className = 'preview-item';
+                    div.innerHTML = `
+                        <img src="${e.target.result}" alt="${file.name}">
+                        <button type="button" class="preview-remove" onclick="this.parentElement.remove()">×</button>
+                    `;
+                    previewContainer.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        // 选择设计方案
+        function selectDesign(designId) {
+            const designMap = { 1: 'design-a', 2: 'design-b', 3: 'design-c' };
+            document.getElementById('designSelect').value = designMap[designId];
+        }
+        
+        // 更新摘要
+        function updateSummary() {
+            const summary = document.getElementById('summaryContent');
+            const form = document.getElementById('projectForm');
+            
+            const summaryHTML = `
+                <h3 style="margin-bottom: 1.5rem; color: #333;">项目信息汇总</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr style="border-bottom: 1px solid #dee2e6;">
+                        <td style="padding: 0.75rem; color: #666; width: 150px;">项目名称</td>
+                        <td style="padding: 0.75rem; color: #333;">${form.projectName.value || '未填写'}</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #dee2e6;">
+                        <td style="padding: 0.75rem; color: #666;">房屋类型</td>
+                        <td style="padding: 0.75rem; color: #333;">${form.houseType.options[form.houseType.selectedIndex]?.text || '未选择'}</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #dee2e6;">
+                        <td style="padding: 0.75rem; color: #666;">建筑面积</td>
+                        <td style="padding: 0.75rem; color: #333;">${form.area.value || 0} 平方米</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #dee2e6;">
+                        <td style="padding: 0.75rem; color: #666;">所在地区</td>
+                        <td style="padding: 0.75rem; color: #333;">${form.location.value || '未填写'}</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #dee2e6;">
+                        <td style="padding: 0.75rem; color: #666;">预计开工</td>
+                        <td style="padding: 0.75rem; color: #333;">${form.startDate.value || '未选择'}</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #dee2e6;">
+                        <td style="padding: 0.75rem; color: #666;">设计风格</td>
+                        <td style="padding: 0.75rem; color: #333;">
+                            ${Array.from(form.style.selectedOptions).map(opt => opt.text).join('、') || '未选择'}
+                        </td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #dee2e6;">
+                        <td style="padding: 0.75rem; color: #666;">设计方案</td>
+                        <td style="padding: 0.75rem; color: #333;">${form.selectedDesign.options[form.selectedDesign.selectedIndex]?.text || '未选择'}</td>
+                    </tr>
+                </table>
+            `;
+            
+            summary.innerHTML = summaryHTML;
+        }
+        
+        // 表单提交
+        document.getElementById('projectForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            saveFormData();
+            
+            const project = {
+                id: Date.now(),
+                ...formData,
+                status: 'draft',
+                createdAt: new Date().toISOString()
+            };
+            
+            let projects = LocalDB.get('projects') || [];
+            projects.push(project);
+            LocalDB.set('projects', projects);
+            
+            alert(`🎉 项目创建成功！\n\n项目名称：${project.projectName}\n项目 ID: ${project.id}\n\n您可以在控制台中查看和管理该项目。`);
+            
+            // 重置向导
+            currentStep = 1;
+            goToStep(1);
+            this.reset();
+            document.getElementById('previewContainer').innerHTML = '';
+        });
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            goToStep(1);
+        });
+    </script>
+</body>
+</html>
