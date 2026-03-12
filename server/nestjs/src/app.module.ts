@@ -13,6 +13,10 @@ import { BudgetsModule } from './modules/budgets/budgets.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { MonitoringModule } from './modules/monitoring/monitoring.module';
 
+// ========== 公共控制器 =========
+import { UploadController } from './common/controllers/upload.controller';
+import { FileUploadService } from './common/services/file-upload.service';
+
 @Module({
   imports: [
     // ========== 环境配置 ==========
@@ -40,9 +44,15 @@ import { MonitoringModule } from './modules/monitoring/monitoring.module';
         REFRESH_TOKEN_SECRET: Joi.string().required(),
         REFRESH_TOKEN_EXPIRATION: Joi.string().default('7d'),
         
-        // OAuth2 配置 (预留)
-        WECHAT_APP_ID: Joi.string().optional(),
-        WECHAT_APP_SECRET: Joi.string().optional(),
+        // 文件上传配置
+        UPLOAD_MAX_SIZE: Joi.number().default(10485760), // 10MB
+        
+        // SMTP 配置（邮件）
+        SMTP_HOST: Joi.string().optional(),
+        SMTP_FROM: Joi.string().default('noreply@zhiqu.com'),
+        
+        // 前端域名
+        FRONTEND_URL: Joi.string().default('http://localhost:8080'),
       }),
       ignoreEnvFile: process.env.NODE_ENV === 'test',
     }),
@@ -69,9 +79,6 @@ import { MonitoringModule } from './modules/monitoring/monitoring.module';
         
         // 日志配置
         logging: configService.get<string>('NODE_ENV') === 'development' ? ['error', 'warn'] : false,
-        
-        // SSL 配置 (生产环境启用)
-        // ssl: configService.get<string>('NODE_ENV') === 'production' ? { rejectUnauthorized: false } : false,
       }),
     }),
 
@@ -87,5 +94,9 @@ import { MonitoringModule } from './modules/monitoring/monitoring.module';
     NotificationsModule,
     MonitoringModule,
   ],
+  
+  controllers: [UploadController], // 公共控制器
+  
+  providers: [FileUploadService], // 共享服务
 })
 export class AppModule {}

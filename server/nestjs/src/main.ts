@@ -1,12 +1,23 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, Injectable } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import helmet from 'helmet';
 import compression from 'compression';
 import { AppModule } from './app.module';
+import { SeedDataService } from './common/services/seed-data.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // ========== 初始化示例数据（开发环境）==========
+  if (process.env.NODE_ENV === 'development') {
+    const seedService = new SeedDataService(app.get(SeedDataService).constructor);
+    try {
+      await seedService.seed();
+    } catch (error) {
+      console.warn('种子数据初始化跳过:', error.message);
+    }
+  }
 
   // ========== 安全中间件 ==========
   app.use(helmet()); // HTTPS 安全头

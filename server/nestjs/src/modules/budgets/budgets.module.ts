@@ -1,7 +1,14 @@
 import { Module } from '@nestjs/common';
-// TODO: 添加实体、service、controller
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { BudgetsService } from './budgets.service';
+import { BudgetsController } from './budgets.controller';
+import { BudgetItemEntity } from './entities/budget-item.entity';
+import { ProjectEntity } from '../projects/entities/project.entity';
+
 @Module({
-  controllers: [],
-  providers: [],
+  imports: [TypeOrmModule.forFeature([BudgetItemEntity, ProjectEntity])],
+  controllers: [BudgetsController],
+  providers: [BudgetsService],
+  exports: [BudgetsService],
 })
 export class BudgetsModule {}
