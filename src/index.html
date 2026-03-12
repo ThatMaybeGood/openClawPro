@@ -83,18 +83,31 @@
         </div>
     </section>
     
+    <script src="scripts/api-client.js"></script>
     <script>
-        function showSection(section) {
-            const messages = {
-                'home': '欢迎使用筑栖平台！点击按钮进入系统。',
-                'upload': '正在打开：户型上传功能...',
-                'suppliers': '正在打开：施工团队选择...',
-                'monitoring': '正在打开：实时监控面板...',
-                'design': '正在打开：设计服务页面...',
-                'budget': '正在打开：预算管理系统...',
-                'materials': '正在打开：材料供应链...'
-            };
-            alert(messages[section] || '功能开发中...');
+        // 检查登录状态并更新导航栏
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('auth_token');
+            const username = localStorage.getItem('username');
+            
+            if (token) {
+                // 显示登录后的导航
+                const navLinks = document.querySelector('.nav-links');
+                navLinks.innerHTML += `
+                    <a href="pages/dashboard.html">控制台</a>
+                    <a href="pages/projects.html" style="color: #667eea;">项目管理</a>
+                    <span class="user-menu" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                        <span style="background: rgba(255,255,255,0.3); padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.9rem;">${username || '用户'}</span>
+                        <button onclick="logout()" style="margin-left: 0.5rem; background: none; border: none; color: white; cursor: pointer; font-size: 1.5rem;">🚪</button>
+                    </span>
+                `;
+            }
+        });
+        
+        async function logout() {
+            if (!confirm('确定要退出登录吗？')) return;
+            localStorage.clear();
+            window.location.href = '/';
         }
     </script>
 </body>
